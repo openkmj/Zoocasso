@@ -1,6 +1,6 @@
 import { Socket, io } from "socket.io-client";
 
-const SOCKET_SERVER_URL = process.env.SERVER_URL as string;
+const SOCKET_SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 
 export default class GameManager {
   roomId: string;
@@ -12,7 +12,13 @@ export default class GameManager {
 
     this.socket.on("connect", () => {
       console.log("connection created");
-      this.socket.emit("JOIN", { roomId: this.roomId });
+      this.socket.emit("JOIN", {
+        roomId: this.roomId,
+        member: {
+          id: "123",
+          name: "mjk",
+        },
+      });
     });
   }
   connect() {

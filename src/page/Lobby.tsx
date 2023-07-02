@@ -1,0 +1,116 @@
+import React, { useState } from "react";
+import Logo from "../asset/img/logo.png";
+import Capy from "../asset/img/capy.png";
+import api from "../api";
+import { AvailableLangugae } from "../class/game";
+import { RoomPreview } from "../class/room";
+
+export default function LobbyPage({
+  setRoom,
+  roomPreview,
+}: {
+  setRoom: (room: string) => void;
+  roomPreview?: RoomPreview;
+}) {
+  const [name, setName] = useState("");
+  const [language, setLanguage] = useState<AvailableLangugae>(
+    roomPreview ? roomPreview.language : "en"
+  );
+
+  const onClickJoinPrivate = async () => {
+    if (!name || !roomPreview) return;
+    const roomId = await api.joinRoom(roomPreview.id);
+    setRoom(roomId);
+  };
+  const onClickJoinPublic = async () => {
+    if (!name) return;
+    const roomId = await api.joinRoom();
+    setRoom(roomId);
+  };
+  const onClickCreatePrivate = async () => {
+    if (!name) return;
+    const roomId = await api.createRoom({
+      isPrivate: true,
+      language: language,
+    });
+    setRoom(roomId);
+  };
+  return (
+    <div className="main">
+      <div className="top">
+        <img
+          id="logo"
+          src={Logo}
+          alt="logo"
+          onClick={() => {
+            location.href = "/";
+          }}
+        />
+      </div>
+      <div className="contents">
+        <div className="character">
+          <div className="edit">
+            <img src={Capy} alt="capybara" />
+          </div>
+        </div>
+        <div className="name">
+          <input
+            placeholder="Type your name"
+            maxLength={12}
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value);
+            }}
+          />
+        </div>
+        <div className="language">
+          <select
+            value={language}
+            onChange={(e) => {
+              setLanguage(e.target.value as AvailableLangugae);
+            }}
+            disabled={!!roomPreview}
+          >
+            <option value="ko">Korean</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+        {roomPreview && (
+          <div className="room-info">
+            Members: {roomPreview.memberCount} / {roomPreview.maxMemberCount}
+          </div>
+        )}
+        <div className="actions">
+          {roomPreview ? (
+            <>
+              <button
+                onClick={() => {
+                  onClickJoinPrivate();
+                }}
+              >
+                Private(Join)
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => {
+                  onClickJoinPublic();
+                }}
+              >
+                Public(Join)
+              </button>
+              <button
+                onClick={() => {
+                  onClickCreatePrivate();
+                }}
+              >
+                Private(Host)
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

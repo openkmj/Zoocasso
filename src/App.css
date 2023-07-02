@@ -1,42 +1,113 @@
-#root {
-  max-width: 1280px;
+#page {
+  min-width: 320px;
+  min-height: 100vh;
+  max-width: 768px;
   margin: 0 auto;
-  padding: 2rem;
+}
+
+.main .top {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 0;
+}
+
+#logo {
+  width: 180px;
+  height: 59px;
+}
+
+.contents {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: calc(100vh - 99px);
+  padding-bottom: 40px;
+  box-sizing: border-box;
+}
+.contents > * {
+  padding: 10px 20px;
+}
+.character {
+  flex: 1;
+}
+.character .edit {
+  padding: 10px;
+  background-color: #393e46;
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.character .edit img {
+  width: 200px;
+  height: 200px;
+}
+.name {
+}
+.name input {
+  font-size: 1.2rem;
   text-align: center;
 }
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+.language {
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+.language select {
+  background-color: #393e46;
+  color: #eeeeee;
+  padding: 10px;
+  width: 100%;
+  border-radius: 5px;
+  border: none;
 }
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.room-info {
+  text-align: center;
 }
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.actions {
+  display: flex;
+  justify-content: space-around;
+}
+.actions button {
+  width: 40%;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+/* ------------ game page ------------ */
+.game {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
-
-.card {
-  padding: 2em;
+.game .top {
+  padding: 5px 10px;
 }
-
-.read-the-docs {
-  color: #888;
+.canvas-wrapper {
+  padding: 5px 10px;
+}
+.canvas-wrapper canvas {
+  width: 100%;
+}
+.chat {
+  padding: 10px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+.chat-list {
+  flex: 1;
+  overflow: auto;
+}
+.chat-list .item {
+}
+.chat-input {
+  display: flex;
+  gap: 10px;
+}
+.chat-input input {
+  padding: 10px;
+}
+.chat-input button {
+  padding: 10px;
 }
