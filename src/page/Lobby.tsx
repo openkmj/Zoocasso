@@ -4,6 +4,7 @@ import Capy from "../asset/img/capy.png";
 import api from "../api";
 import { AvailableLangugae } from "../class/game";
 import { RoomPreview } from "../class/room";
+import useGameStore from "../store";
 
 export default function LobbyPage({
   setRoom,
@@ -16,23 +17,27 @@ export default function LobbyPage({
   const [language, setLanguage] = useState<AvailableLangugae>(
     roomPreview ? roomPreview.language : "en"
   );
+  const { setUser } = useGameStore();
 
   const onClickJoinPrivate = async () => {
     if (!name || !roomPreview) return;
-    const roomId = await api.joinRoom(roomPreview.id);
+    const roomId = await api.joinRoom(name, roomPreview.id);
+    setUser({ id: "", name });
     setRoom(roomId);
   };
   const onClickJoinPublic = async () => {
     if (!name) return;
-    const roomId = await api.joinRoom();
+    const roomId = await api.joinRoom(name);
+    setUser({ id: "", name });
     setRoom(roomId);
   };
   const onClickCreatePrivate = async () => {
     if (!name) return;
-    const roomId = await api.createRoom({
+    const roomId = await api.createRoom(name, {
       isPrivate: true,
       language: language,
     });
+    setUser({ id: "", name });
     setRoom(roomId);
   };
   return (

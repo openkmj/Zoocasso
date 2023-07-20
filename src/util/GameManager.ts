@@ -1,4 +1,5 @@
 import { Socket, io } from "socket.io-client";
+import { C2SEvent, Member, S2CEventType } from "../class/game";
 
 const SOCKET_SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 
@@ -6,7 +7,7 @@ export default class GameManager {
   roomId: string;
   socket: Socket;
   isConnected = false;
-  constructor(roomId: string) {
+  constructor(roomId: string, member: Member) {
     this.roomId = roomId;
     this.socket = io(SOCKET_SERVER_URL);
 
@@ -14,10 +15,7 @@ export default class GameManager {
       console.log("connection created");
       this.socket.emit("JOIN", {
         roomId: this.roomId,
-        member: {
-          id: "123",
-          name: "mjk",
-        },
+        member: member,
       });
     });
   }
@@ -29,11 +27,11 @@ export default class GameManager {
     if (!this.isConnected) return;
     this.socket.disconnect();
   }
-  addEventListener(type: string, callback: (params: any) => void) {
+  addEventListener(type: S2CEventType, callback: (params: any) => void) {
     this.socket.on(type, callback);
   }
-  emitEvent(type: string, params: any) {
+  emitEvent(event: C2SEvent) {
     if (!this.isConnected) return;
-    this.socket.emit(type, params);
+    this.socket.emit(event.type, event.payload);
   }
 }

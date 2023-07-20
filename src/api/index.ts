@@ -1,6 +1,6 @@
 import axios from "axios";
 import { RoomPreview } from "../class/room";
-import { RoomConfig } from "../class/game";
+import { AvailableLangugae, RoomConfig } from "../class/game";
 
 const BASE_URL = import.meta.env.VITE_SERVER_URL;
 
@@ -24,19 +24,27 @@ const getRoomInfo = (roomId: string) => {
     .then(({ data }) => new RoomPreview(data));
 };
 
-const createRoom = (config: RoomConfig) => {
+const createRoom = (
+  name: string,
+  config: {
+    isPrivate: boolean;
+    language: AvailableLangugae;
+  }
+) => {
   return instance
     .post("/room", {
+      name: name,
       is_private: config.isPrivate,
       language: config.language,
     })
     .then(({ data }) => data.room_id as string);
 };
 
-const joinRoom = (roomId?: string) => {
+const joinRoom = (name: string, roomId?: string) => {
   return instance
     .post("/room/join", {
-      roomId,
+      name: name,
+      room_id: roomId,
     })
     .then(({ data }) => data.room_id as string);
 };
