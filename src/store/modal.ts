@@ -1,13 +1,25 @@
 import { create } from "zustand";
+import { AnswerProps } from "../component/Modal/ModalAnswer";
+import { GameResultProps } from "../component/Modal/ModalGameResult";
+import { InviteCodeProps } from "../component/Modal/ModalInviteCode";
+import { SelectWordProps } from "../component/Modal/ModalSelectWord";
+import { WaitWordProps } from "../component/Modal/ModalWaitWord";
+
+type ModalProps =
+  | SelectWordProps
+  | WaitWordProps
+  | AnswerProps
+  | GameResultProps
+  | InviteCodeProps;
 
 interface ModalType {
   type: string;
-  props: any;
+  props: ModalProps;
 }
 
 interface ModalState {
   modals: ModalType[];
-  openModal: (type: string, props: any) => void;
+  openModal: (type: string, props: ModalProps) => void;
   closeModal: (type: string) => void;
 }
 

@@ -4,9 +4,10 @@ import { Member } from "../class/game";
 interface GameState {
   user: Member;
   setUser: (user: Member) => void;
+  setId: (id: string) => void;
 }
 
-const useGameStore = create<GameState>()((set) => ({
+const useGameStore = create<GameState>()((set, get) => ({
   user: {
     id: "",
     name: "anonymous",
@@ -14,6 +15,11 @@ const useGameStore = create<GameState>()((set) => ({
   setUser: (user: Member) => {
     set({
       user,
+    });
+  },
+  setId: (id: string) => {
+    set({
+      user: { ...get().user, id },
     });
   },
 }));

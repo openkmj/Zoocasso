@@ -1,6 +1,16 @@
 import React from "react";
 
-interface ModalAnswerProps {
+export interface AnswerProps {
+  answer: string;
+  ranking: {
+    id: string;
+    name: string;
+    turnScore: number;
+    score: number;
+  }[];
+}
+
+interface ModalAnswerProps extends AnswerProps {
   closeModal: () => void;
 }
 

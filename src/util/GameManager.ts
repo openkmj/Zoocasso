@@ -1,5 +1,6 @@
 import { Socket, io } from "socket.io-client";
 import { C2SEvent, Member, S2CEventType } from "../class/game";
+import useUserStore from "../store/user";
 
 const SOCKET_SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
 
@@ -17,6 +18,7 @@ export default class GameManager {
         roomId: this.roomId,
         member: member,
       });
+      useUserStore.getState().setId(this.socket.id);
     });
   }
   connect() {

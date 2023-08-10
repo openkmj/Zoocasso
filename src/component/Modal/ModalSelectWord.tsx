@@ -1,9 +1,12 @@
 import React from "react";
 
-interface ModalSelectWordProps {
+export interface SelectWordProps {
+  words: string[];
+  callback: (word: string) => void;
+}
+
+interface ModalSelectWordProps extends SelectWordProps {
   closeModal: () => void;
-  words?: string[];
-  callback?: (word: string) => void;
 }
 
 export default function ModalSelectWord({
@@ -19,7 +22,7 @@ export default function ModalSelectWord({
           key={i}
           onClick={() => {
             callback(i);
-            closeModal();
+            // closeModal();
           }}
         >
           {i}

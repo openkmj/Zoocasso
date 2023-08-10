@@ -1,0 +1,83 @@
+.lobby {
+}
+.top {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 0;
+}
+.logo {
+  width: 300px;
+  height: 120px;
+  cursor: pointer;
+}
+.contents {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-sizing: border-box;
+}
+.character {
+  flex: 1;
+}
+.edit {
+  padding: 10px;
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.character .edit img {
+  width: 200px;
+  height: 200px;
+}
+.name {
+  display: flex;
+  justify-content: center;
+}
+.name input {
+  width: 240px;
+}
+.language {
+  display: flex;
+  justify-content: center;
+}
+.language select {
+  width: 240px;
+  background-color: #fff;
+  color: #151717;
+  padding: 10px 20px;
+  border-radius: 0;
+  border: none;
+  outline: none;
+}
+.roomInfo {
+  text-align: center;
+}
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+.inviteCode {
+  display: flex;
+  justify-content: center;
+}
+.help {
+  font-size: 24px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #151717;
+  background-color: #fff;
+  position: absolute;
+  bottom: 10px;
+  right: 16px;
+  cursor: pointer;
+}

@@ -1,0 +1,74 @@
+.game {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.header {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--main-blue);
+}
+.left {
+}
+.center {
+}
+.right {
+}
+.mainView {
+  display: flex;
+  justify-content: center;
+}
+.canvasWrapper {
+  position: relative;
+  display: flex;
+}
+.canvasWrapper canvas {
+  background-color: var(--white);
+  width: 100vw;
+  image-rendering: pixelated;
+}
+@media (min-width: 500px) {
+  .canvasWrapper canvas {
+    width: 500px;
+  }
+}
+.setting {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 1;
+  color: var(--black);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.chatList {
+  background-color: var(--bg-blue);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  flex: 1;
+}
+.chatInput {
+  background-color: var(--grey-600);
+  display: flex;
+  gap: 10px;
+  padding: 8px;
+}
+.chatInput input {
+  padding: 10px;
+  text-align: left;
+  border: none;
+}
+.chatInput button {
+  border: none;
+  padding: 10px;
+}

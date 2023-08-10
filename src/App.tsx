@@ -1,10 +1,10 @@
-import "./App.css";
 import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import MainPage from "./page/Main";
-import InvitedPage, { loader as invitedLoader } from "./page/Invited";
-import ErrorPage from "./page/Error";
+import "./App.css";
 import Modal from "./component/Modal";
+import ErrorPage from "./page/Error";
+import InvitedPage, { loader as invitedLoader } from "./page/Invited";
+import MainPage from "./page/Main";
 
 const router = createBrowserRouter([
   {

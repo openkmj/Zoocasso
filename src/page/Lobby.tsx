@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import Logo from "../asset/img/logo.png";
-import Capy from "../asset/img/capy.png";
+import styles from "../Lobby.module.css";
 import api from "../api";
+import Logo from "../asset/Logo.png";
+import Capy from "../asset/img/capy.png";
 import { AvailableLangugae } from "../class/game";
 import { RoomPreview } from "../class/room";
-import useGameStore from "../store";
+import useModalStore from "../store/modal";
+import useUserStore from "../store/user";
 
 export default function LobbyPage({
   setRoom,
@@ -17,12 +19,13 @@ export default function LobbyPage({
   const [language, setLanguage] = useState<AvailableLangugae>(
     roomPreview ? roomPreview.language : "en"
   );
-  const { setUser } = useGameStore();
+  const { setUser } = useUserStore();
+  const { openModal } = useModalStore();
 
   const onClickJoinPrivate = async () => {
     if (!name || !roomPreview) return;
     const roomId = await api.joinRoom(name, roomPreview.id);
-    setUser({ id: "", name });
+    setUser({ id: "", name }); // TODO: Set isManager
     setRoom(roomId);
   };
   const onClickJoinPublic = async () => {
@@ -37,14 +40,19 @@ export default function LobbyPage({
       isPrivate: true,
       language: language,
     });
-    setUser({ id: "", name });
+    setUser({ id: "", name, isManager: true });
     setRoom(roomId);
   };
+
+  const openInviteCodeModal = () => {
+    openModal("INVITE_CODE", {});
+  };
+
   return (
-    <div className="main">
-      <div className="top">
+    <div className={styles.lobby}>
+      <div className={styles.top}>
         <img
-          id="logo"
+          className={styles.logo}
           src={Logo}
           alt="logo"
           onClick={() => {
@@ -52,13 +60,13 @@ export default function LobbyPage({
           }}
         />
       </div>
-      <div className="contents">
-        <div className="character">
-          <div className="edit">
+      <div className={styles.contents}>
+        <div className={styles.character}>
+          <div className={styles.edit}>
             <img src={Capy} alt="capybara" />
           </div>
         </div>
-        <div className="name">
+        <div className={styles.name}>
           <input
             placeholder="Type your name"
             maxLength={12}
@@ -68,7 +76,7 @@ export default function LobbyPage({
             }}
           />
         </div>
-        <div className="language">
+        <div className={styles.language}>
           <select
             value={language}
             onChange={(e) => {
@@ -81,11 +89,11 @@ export default function LobbyPage({
           </select>
         </div>
         {roomPreview && (
-          <div className="room-info">
+          <div className={styles.roomInfo}>
             Members: {roomPreview.memberCount} / {roomPreview.maxMemberCount}
           </div>
         )}
-        <div className="actions">
+        <div className={styles.actions}>
           {roomPreview ? (
             <>
               <button
@@ -93,7 +101,7 @@ export default function LobbyPage({
                   onClickJoinPrivate();
                 }}
               >
-                Private(Join)
+                Private (Join)
               </button>
             </>
           ) : (
@@ -103,19 +111,29 @@ export default function LobbyPage({
                   onClickJoinPublic();
                 }}
               >
-                Public(Join)
+                Start
+                <br />
+                Game
               </button>
               <button
                 onClick={() => {
                   onClickCreatePrivate();
                 }}
               >
-                Private(Host)
+                Make
+                <br />
+                Room
               </button>
             </>
           )}
         </div>
+        <div className={styles.inviteCode}>
+          <span className="text-button" onClick={openInviteCodeModal}>
+            I have invitation code
+          </span>
+        </div>
       </div>
+      <div className={styles.help}>?</div>
     </div>
   );
 }

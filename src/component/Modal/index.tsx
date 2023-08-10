@@ -1,10 +1,12 @@
 import React, { useCallback, useState } from "react";
 import ReactModal from "react-modal";
 import useModalStore from "../../store/modal";
-import styles from "./index.module.css";
+import ModalAnswer from "./ModalAnswer";
+import ModalGameResult from "./ModalGameResult";
+import ModalInviteCode from "./ModalInviteCode";
 import ModalSelectWord from "./ModalSelectWord";
 import ModalWaitWord from "./ModalWaitWord";
-import ModalAnswer from "./ModalAnswer";
+import styles from "./index.module.css";
 
 export default function Modal() {
   const modals = useModalStore((state) => state.modals);
@@ -27,6 +29,7 @@ export default function Modal() {
           <ReactModal
             key={type}
             isOpen={true}
+            className={styles.modal}
             //   overlayClassName={
             //     closing ? `${styles.overlay} ${styles.closing}` : styles.overlay
             //   }
@@ -39,24 +42,11 @@ export default function Modal() {
               close(type);
             }}
           >
-            <div className={styles.commonModal}>
-              {/* {props.title && <h1 className={styles.title}>{props.title}</h1>} */}
-              {props.useCloseButton && (
-                <div className={styles.close}>
-                  <i
-                    className="icon icon-button icon-modal-close"
-                    onClick={() => {
-                      close(type);
-                    }}
-                  ></i>
-                </div>
-              )}
-              <ModalContents
-                type={type}
-                closeModal={() => close(type)}
-                {...props}
-              />
-            </div>
+            <ModalContents
+              type={type}
+              closeModal={() => close(type)}
+              {...props}
+            />
           </ReactModal>
         );
       })}
@@ -79,6 +69,10 @@ const ModalContents = ({
       return <ModalWaitWord closeModal={closeModal} {...props} />;
     case "ANSWER":
       return <ModalAnswer closeModal={closeModal} {...props} />;
+    case "GAME_RESULT":
+      return <ModalGameResult closeModal={closeModal} {...props} />;
+    case "INVITE_CODE":
+      return <ModalInviteCode closeModal={closeModal} {...props} />;
     default:
       return null;
   }

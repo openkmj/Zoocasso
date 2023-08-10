@@ -4,7 +4,9 @@ export const enum C2SEventType {
   UPDATE_SETTING = "UPDATE_SETTING",
   START = "START",
   SELECT_WORD = "SELECT_WORD",
+  DRAW = "DRAW",
   KICK = "KICK",
+  SKIP = "SKIP",
 }
 
 export type C2SEvent =
@@ -37,6 +39,11 @@ export type C2SEvent =
       roomId: string;
       type: C2SEventType.KICK;
       payload: KickPayload;
+    }
+  | {
+      roomId: string;
+      type: C2SEventType.DRAW;
+      payload: any;
     };
 
 export type JoinPayload = {
