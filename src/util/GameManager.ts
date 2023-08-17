@@ -1,5 +1,5 @@
 import { Socket, io } from "socket.io-client";
-import { C2SEvent, Member, S2CEventType } from "../class/game";
+import { C2SEvent, MemberInRoom, S2CEventType } from "../class/game";
 import useUserStore from "../store/user";
 
 const SOCKET_SERVER_URL = import.meta.env.VITE_SERVER_URL as string;
@@ -8,7 +8,7 @@ export default class GameManager {
   roomId: string;
   socket: Socket;
   isConnected = false;
-  constructor(roomId: string, member: Member) {
+  constructor(roomId: string, member: MemberInRoom) {
     this.roomId = roomId;
     this.socket = io(SOCKET_SERVER_URL);
 

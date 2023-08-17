@@ -3,24 +3,33 @@ import { AnswerProps } from "../component/Modal/ModalAnswer";
 import { GameResultProps } from "../component/Modal/ModalGameResult";
 import { InviteCodeProps } from "../component/Modal/ModalInviteCode";
 import { SelectWordProps } from "../component/Modal/ModalSelectWord";
+import { TurnResultProps } from "../component/Modal/ModalTurnResult";
 import { WaitWordProps } from "../component/Modal/ModalWaitWord";
 
-type ModalProps =
+export type ModalProps =
   | SelectWordProps
   | WaitWordProps
   | AnswerProps
   | GameResultProps
+  | TurnResultProps
   | InviteCodeProps;
 
-interface ModalType {
-  type: string;
-  props: ModalProps;
-}
+export type ModalType =
+  | "SELECT_WORD"
+  | "ANSWER"
+  | "GAME_RESULT"
+  | "INVITE_CODE"
+  | "TURN_RESULT"
+  | "WAIT_WORD";
 
+export type Modal = {
+  type: ModalType;
+  props: ModalProps;
+};
 interface ModalState {
-  modals: ModalType[];
-  openModal: (type: string, props: ModalProps) => void;
-  closeModal: (type: string) => void;
+  modals: Modal[];
+  openModal: (type: ModalType, props: ModalProps) => void;
+  closeModal: (type: ModalType) => void;
 }
 
 const useModalStore = create<ModalState>()((set, get) => ({

@@ -34,20 +34,6 @@
     width: 500px;
   }
 }
-.setting {
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  z-index: 1;
-  color: var(--black);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
-}
 
 .chatList {
   background-color: var(--bg-blue);

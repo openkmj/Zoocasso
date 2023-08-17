@@ -1,8 +1,8 @@
 import { create } from "zustand";
-import { Member } from "../class/game";
+import { MemberInRoom } from "../class/game";
 
-interface UserState extends Member {
-  setUser: (user: Member) => void;
+interface UserState extends MemberInRoom {
+  setUser: (user: MemberInRoom) => void;
   setId: (id: string) => void;
 }
 
@@ -10,7 +10,7 @@ const useUserStore = create<UserState>()((set, get) => ({
   id: "",
   name: "anonymous",
   isManager: false,
-  setUser: (user: Member) => {
+  setUser: (user: MemberInRoom) => {
     set({
       id: user.id,
       name: user.name,

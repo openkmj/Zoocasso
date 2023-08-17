@@ -9,6 +9,31 @@ export const enum C2SEventType {
   SKIP = "SKIP",
 }
 
+export type JoinPayload = {
+  roomId: string;
+  member: Member;
+};
+export type ChatPayload = {
+  type: "USR";
+  member: Member;
+  text: string;
+};
+export type UpdateSettingPayload = {
+  config: RoomConfig;
+};
+export type StartPayload = {
+  //
+};
+export type SelectWordPayload = {
+  word: string;
+};
+export type KickPayload = {
+  member: Member;
+};
+export type SkipPayload = {
+  //
+};
+
 export type C2SEvent =
   | {
       roomId: string;
@@ -42,31 +67,14 @@ export type C2SEvent =
     }
   | {
       roomId: string;
+      type: C2SEventType.SKIP;
+      payload: SkipPayload;
+    }
+  | {
+      roomId: string;
       type: C2SEventType.DRAW;
       payload: any;
     };
-
-export type JoinPayload = {
-  roomId: string;
-  member: Member;
-};
-export type ChatPayload = {
-  type: "USR";
-  member: Member;
-  text: string;
-};
-export type UpdateSettingPayload = {
-  config: RoomConfig;
-};
-export type StartPayload = {
-  //
-};
-export type SelectWordPayload = {
-  word: string;
-};
-export type KickPayload = {
-  member: Member;
-};
 
 export const enum S2CEventType {
   CHATTING_UPDATED = "CHATTING_UPDATED",
@@ -111,10 +119,28 @@ export type ChattingUpdatedPayload =
 export type MemberUpdatedPayload = {
   memberList: Member[];
 };
-export type StatusUpdatedPayload = {
-  status: GameStatus;
-  words?: string[];
-};
+export type StatusUpdatedPayload =
+  | {
+      status: GameStatus.PENDING;
+      turnResult?: {
+        answer: string;
+        scoreBoard: MemberForScore[];
+      };
+    }
+  | {
+      status: GameStatus.SELECTING_WORD;
+      turnResult?: {
+        answer: string;
+        scoreBoard: MemberForScore[];
+      };
+      words?: string[];
+    }
+  | {
+      status: GameStatus.DRAWING;
+      word?: string;
+      wordLength?: number;
+    };
+
 export type SettingUpdatedPayload = {
   config: RoomConfig;
 };
@@ -127,21 +153,29 @@ export interface RoomConfig extends GameConfig {
 export interface GameConfig {
   drawTime: number;
   round: number;
+  showWordLength: boolean;
+  customWord: boolean;
 }
 
-export const enum GAME_STATUS {
+export const enum GameStatus {
   PENDING = "PENDING", // 로비 대기
   SELECTING_WORD = "SELECTING_WORD", // 단어 선택 중
   DRAWING = "DRAWING", // 그림 그리는 중
 }
-
-export type GameStatus = (typeof GAME_STATUS)[keyof typeof GAME_STATUS];
 
 export type AvailableLangugae = "ko" | "en";
 
 export interface Member {
   id: string;
   name: string;
-  isManager?: boolean;
-  score?: number;
+}
+export interface MemberInRoom extends Member {
+  isManager: boolean;
+}
+export interface MemberInGame extends MemberInRoom, MemberForScore {
+  status: "DRAW" | "SKIP" | "PASS" | "NONE";
+}
+export interface MemberForScore extends Member {
+  score: number;
+  turnScore: number;
 }

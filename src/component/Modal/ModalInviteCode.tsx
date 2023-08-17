@@ -1,14 +1,20 @@
 import React from "react";
 
-export interface InviteCodeProps {}
+export interface InviteCodeProps {
+  callback: () => void;
+}
 
-interface ModalInviteCodeProps extends InviteCodeProps {
+interface ModalInviteCodeProps {
+  props: InviteCodeProps;
   closeModal: () => void;
 }
 
-export default function ModalInviteCode({ closeModal }: ModalInviteCodeProps) {
+export default function ModalInviteCode({
+  props: { callback },
+  closeModal,
+}: ModalInviteCodeProps) {
   const handleEnterRoom = () => {
-    // do something
+    callback();
     closeModal();
   };
   return (

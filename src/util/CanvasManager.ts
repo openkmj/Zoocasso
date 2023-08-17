@@ -18,13 +18,13 @@ export default class CanvasManager {
     this.ctx = canvas.getContext("2d");
     console.log(this.ctx);
     this.canvas.onmousemove = (e: MouseEvent) => {
-      this.draw(e);
+      this.draw(e, 10);
     };
 
     this.handleCanvasUpdated = handleCanvasUpdated;
   }
-  private draw(e: MouseEvent) {
-    // console.log(e);
+  private draw(e: MouseEvent, color: number) {
+    if (color < 0 || color > 15) return;
     if (e.buttons !== 1) return;
     // const ctx = this.canvas.getContext("2d");
     if (!this.ctx) return;
@@ -35,13 +35,21 @@ export default class CanvasManager {
     const y = Math.floor((e.offsetY * HEIGHT) / rect.height);
 
     const img = new Uint8Array(this.bitMap);
+    const dataView = new DataView(img.buffer);
 
     const dataIndex = (y * 128 + x) / 2;
 
     if (x % 2 === 0) {
-      img[dataIndex] = 1 | (img[dataIndex] & 0x0f);
+      dataView.setUint8(
+        dataIndex,
+        ((color << 4) | 0b00001111) &
+          (dataView.getUint8(dataIndex) | 0b11110000)
+      );
     } else {
-      img[dataIndex] = (img[dataIndex] & 0xf0) | 1;
+      dataView.setUint8(
+        dataIndex,
+        (dataView.getUint8(dataIndex) | 0b00001111) & (color | 0b11110000)
+      );
     }
 
     this.syncCanvas(img.buffer);
@@ -60,9 +68,15 @@ export default class CanvasManager {
     }, 1000);
   }
 
+  clear() {
+    this.bitMap = new ArrayBuffer((WIDTH * HEIGHT) / 2);
+    const ctx = this.canvas.getContext("2d");
+    if (!ctx) return;
+
+    ctx.clearRect(0, 0, WIDTH, HEIGHT);
+  }
+
   syncCanvas(bitMap: ArrayBuffer) {
-    console.log("sync canvas");
-    console.log(bitMap.byteLength);
     if (bitMap.byteLength !== this.bitMap.byteLength) return;
     const ctx = this.canvas.getContext("2d");
     if (!ctx) return;
@@ -71,13 +85,18 @@ export default class CanvasManager {
     const view = new Uint8Array(bitMap);
     ctx.imageSmoothingEnabled = false;
 
+    const dataView = new DataView(view.buffer);
+
     const img = ctx.createImageData(WIDTH, HEIGHT);
     for (let i = 0; i < view.length; i++) {
-      const data = view[i];
-      const p1 = data >> 4;
-      const p2 = data & 0x0f;
+      // const byte = dataView.getUint8(i);
+      const p1 = dataView.getUint8(i) >> 4; // 0~15 사이의 값
+      const p2 = dataView.getUint8(i) & 0b1111; // 0~15 사이의 값
+
       const c1 = palette[p1];
       const c2 = palette[p2];
+
+      // if (p1 || p2) console.log(p1, p2);
 
       img.data[i * 8] = c1[0];
       img.data[i * 8 + 1] = c1[1];
@@ -91,13 +110,12 @@ export default class CanvasManager {
     }
 
     ctx.putImageData(img, 0, 0);
-    console.log("success");
   }
 }
 
 const palette = [
-  [0, 0, 0], // white
-  [255, 255, 255], // black
+  [255, 255, 255], // white
+  [0, 0, 0], // black
   [200, 200, 200], // grey
   [255, 67, 67], // red
   [255, 135, 67], // orange

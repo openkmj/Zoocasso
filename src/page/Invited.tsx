@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import LobbyPage from "./Lobby";
 import { useLoaderData } from "react-router-dom";
 import api from "../api";
 import { RoomPreview } from "../class/room";
 import GamePage from "./Game";
+import LobbyPage from "./Lobby";
 
 export const loader = async ({ params }: any) => {
   try {

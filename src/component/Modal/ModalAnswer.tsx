@@ -1,19 +1,32 @@
 import React from "react";
+import { MemberForScore } from "../../class/game";
+import styles from "./index.module.css";
 
 export interface AnswerProps {
   answer: string;
-  ranking: {
-    id: string;
-    name: string;
-    turnScore: number;
-    score: number;
-  }[];
+  scoreBoard: MemberForScore[];
 }
 
-interface ModalAnswerProps extends AnswerProps {
+interface ModalAnswerProps {
+  props: AnswerProps;
   closeModal: () => void;
 }
 
-export default function ModalAnswer({ closeModal }: ModalAnswerProps) {
-  return <div>the answer is ...</div>;
+export default function ModalAnswer({
+  props: { answer, scoreBoard },
+  closeModal,
+}: ModalAnswerProps) {
+  if (!answer || !scoreBoard) return;
+  return (
+    <div className={styles.modalLayout}>
+      <div className={styles.modalTitle}>The answer is {answer}</div>
+      <div>
+        {scoreBoard.map((m) => (
+          <div>
+            {m.name}: {m.turnScore} {"->"} {m.score}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }

@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Slider from "react-slick";
 import styles from "../Lobby.module.css";
 import api from "../api";
 import Logo from "../asset/Logo.png";
@@ -15,6 +17,8 @@ export default function LobbyPage({
   setRoom: (room: string) => void;
   roomPreview?: RoomPreview;
 }) {
+  const navigate = useNavigate();
+
   const [name, setName] = useState("");
   const [language, setLanguage] = useState<AvailableLangugae>(
     roomPreview ? roomPreview.language : "en"
@@ -25,7 +29,7 @@ export default function LobbyPage({
   const onClickJoinPrivate = async () => {
     if (!name || !roomPreview) return;
     const roomId = await api.joinRoom(name, roomPreview.id);
-    setUser({ id: "", name }); // TODO: Set isManager
+    setUser({ id: "", name, isManager: false }); // TODO: Set isManager
     setRoom(roomId);
   };
   const onClickJoinPublic = async () => {
@@ -47,6 +51,15 @@ export default function LobbyPage({
   const openInviteCodeModal = () => {
     openModal("INVITE_CODE", {});
   };
+  const handleBackToMain = () => {
+    navigate("/");
+  };
+
+  useEffect(() => {
+    // openModal("WAIT_WORD", {
+    //   player: "minjae",
+    // });
+  }, []);
 
   return (
     <div className={styles.lobby}>
@@ -63,7 +76,10 @@ export default function LobbyPage({
       <div className={styles.contents}>
         <div className={styles.character}>
           <div className={styles.edit}>
-            <img src={Capy} alt="capybara" />
+            <Slider className={styles.slick}>
+              <img src={Capy} alt="capybara" />
+              <img src={Capy} alt="capybara" />
+            </Slider>
           </div>
         </div>
         <div className={styles.name}>
@@ -128,9 +144,15 @@ export default function LobbyPage({
           )}
         </div>
         <div className={styles.inviteCode}>
-          <span className="text-button" onClick={openInviteCodeModal}>
-            I have invitation code
-          </span>
+          {roomPreview ? (
+            <span className="text-button" onClick={handleBackToMain}>
+              Back to main
+            </span>
+          ) : (
+            <span className="text-button" onClick={openInviteCodeModal}>
+              I have invitation code!
+            </span>
+          )}
         </div>
       </div>
       <div className={styles.help}>?</div>

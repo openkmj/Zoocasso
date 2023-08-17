@@ -3,16 +3,20 @@ import styles from "../Game.module.css";
 import {
   C2SEventType,
   ChattingUpdatedPayload,
-  GAME_STATUS,
+  GameStatus,
   Member,
   MemberUpdatedPayload,
   S2CEventType,
   StatusUpdatedPayload,
 } from "../class/game";
+import GameConfig from "../component/GameConfig";
 import useModalStore from "../store/modal";
 import useUserStore from "../store/user";
 import CanvasManager from "../util/CanvasManager";
 import GameManager from "../util/GameManager";
+
+const SHOW_TURN_RESULT_TIME = 5000;
+const SELECTING_WORD_TIME = 15 * 1000;
 
 const CANVAS_SIZE = 128;
 
@@ -51,6 +55,17 @@ export default function GamePage({
 
     setChatInput("");
   };
+
+  const skip = () => {
+    if (!gameManagerRef.current) return;
+
+    gameManagerRef.current.emitEvent({
+      roomId: room,
+      type: C2SEventType.SKIP,
+      payload: {},
+    });
+  };
+
   const startGame = () => {
     if (!gameManagerRef.current) return;
     gameManagerRef.current.emitEvent({
@@ -105,8 +120,10 @@ export default function GamePage({
       S2CEventType.CHATTING_UPDATED,
       (p: ChattingUpdatedPayload) => {
         if (p.type === "SYS") {
+          // get system message
           setChatList((i) => i.concat(p.text));
         } else {
+          // get user message
           setChatList((i) => i.concat(`${p.member.name}: ${p.text}`));
         }
       }
@@ -121,47 +138,85 @@ export default function GamePage({
     gameManagerRef.current.addEventListener(
       S2CEventType.STATUS_UPDATED,
       (p: StatusUpdatedPayload) => {
-        if (p.status === GAME_STATUS.PENDING) setIsOnGame(false);
+        if (p.status === GameStatus.PENDING) setIsOnGame(false);
         else setIsOnGame(true);
         switch (p.status) {
-          case GAME_STATUS.DRAWING: {
+          case GameStatus.DRAWING: {
             closeModal("SELECT_WORD");
             closeModal("WAIT_WORD");
-            if (p.words && p.words.length > 0) {
-              console.log(p.words[0]);
-              //@ts-ignore
-              setChatList((i) => i.concat(`${p.words[0]}를 선택하셨습니다.`));
+            if (p.word) {
+              console.log(p.word);
+              setChatList((i) => i.concat(`${p.word}를 선택하셨습니다.`));
             } else {
               setChatList((i) => i.concat("단어 고르기 끝"));
             }
             return;
           }
-          case GAME_STATUS.SELECTING_WORD: {
-            // game result ? show game result 5s : pass
-            // show 3 words if my turn
-            // or stay
-            if (p.words) {
-              openModal("SELECT_WORD", {
-                words: p.words,
-                callback: (word: string) => {
-                  gameManagerRef.current?.emitEvent({
-                    roomId: room,
-                    type: C2SEventType.SELECT_WORD,
-                    payload: {
-                      word: word,
+          case GameStatus.SELECTING_WORD: {
+            canvasManagerRef.current?.clear();
+            if (p.turnResult) {
+              console.log(p.turnResult);
+              openModal("ANSWER", {
+                answer: p.turnResult.answer,
+                scoreBoard: p.turnResult.scoreBoard,
+              }); // show turn result
+              setTimeout(() => {
+                closeModal("ANSWER");
+                if (p.words) {
+                  openModal("SELECT_WORD", {
+                    words: p.words,
+                    callback: (word: string) => {
+                      gameManagerRef.current?.emitEvent({
+                        roomId: room,
+                        type: C2SEventType.SELECT_WORD,
+                        payload: {
+                          word: word,
+                        },
+                      });
                     },
                   });
-                },
-              });
+                } else {
+                  openModal("WAIT_WORD", {
+                    player: "???",
+                  });
+                }
+              }, SHOW_TURN_RESULT_TIME);
             } else {
-              openModal("WAIT_WORD", {
-                player: "???",
-              });
+              if (p.words) {
+                openModal("SELECT_WORD", {
+                  words: p.words,
+                  callback: (word: string) => {
+                    gameManagerRef.current?.emitEvent({
+                      roomId: room,
+                      type: C2SEventType.SELECT_WORD,
+                      payload: {
+                        word: word,
+                      },
+                    });
+                  },
+                });
+              } else {
+                openModal("WAIT_WORD", {
+                  player: "???",
+                });
+              }
             }
+
             return;
           }
-          case GAME_STATUS.PENDING: {
+          case GameStatus.PENDING: {
             // who is the winner?
+            canvasManagerRef.current?.clear();
+            if (p.turnResult) {
+              openModal("ANSWER", {
+                answer: p.turnResult.answer,
+                scoreBoard: p.turnResult.scoreBoard,
+              });
+              setTimeout(() => {
+                closeModal("ANSWER");
+              }, SHOW_TURN_RESULT_TIME);
+            }
+            console.log(p);
             setIsOnGame(false);
             return;
           }
@@ -175,7 +230,7 @@ export default function GamePage({
         canvasManagerRef.current?.syncCanvas(p.data);
       }
     );
-  }, [room, id, name, isManager, openModal]);
+  }, [room, id, name, isManager, openModal, closeModal]);
   return (
     <div className={styles.game}>
       <div className={styles.header}>
@@ -190,35 +245,7 @@ export default function GamePage({
         <div className={styles.canvasWrapper}>
           <canvas ref={canvasRef}></canvas>
           {!isOnGame && (
-            <div className={styles.setting}>
-              <div className="title">Setting</div>
-              <div>
-                <div>
-                  <div>max player</div>
-                  <div>0</div>
-                </div>
-                <div>
-                  <div>drawing time</div>
-                  <div>0</div>
-                </div>
-                <div>
-                  <div>rounds</div>
-                  <div>0</div>
-                </div>
-                <div>
-                  <div>show word length</div>
-                </div>
-                <div>
-                  <div>use custom word</div>
-                </div>
-              </div>
-              {isManager && (
-                <button onClick={startGame}>
-                  {/* <button onClick={startGame} disabled={memberList.length <= 1}> */}
-                  Start Game
-                </button>
-              )}
-            </div>
+            <GameConfig start={isManager ? startGame : undefined} />
           )}
         </div>
       </div>

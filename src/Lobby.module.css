@@ -30,6 +30,9 @@
   align-items: center;
   justify-content: center;
 }
+.slick {
+  width: 200px;
+}
 .character .edit img {
   width: 200px;
   height: 200px;
