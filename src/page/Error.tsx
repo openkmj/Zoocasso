@@ -1,5 +1,6 @@
 import React from "react";
 import { isRouteErrorResponse, useRouteError } from "react-router-dom";
+import Logo from "../asset/Logo.png";
 
 export default function ErrorPage() {
   const error = useRouteError();
@@ -22,11 +23,22 @@ export default function ErrorPage() {
 
   return (
     <div id="error-page">
-      <h1>{errorTitle}</h1>
-      <p>Sorry, an unexpected error has occurred.</p>
+      <img src={Logo} alt="logo" />
+      <h1>Oops,</h1>
+      <h1>Where is Zoocasso?</h1>
+      <p>
+        <i>{errorTitle}</i>
+      </p>
       <p>
         <i>{errorMessage}</i>
       </p>
+      <button
+        onClick={() => {
+          location.href = "/";
+        }}
+      >
+        Back to main
+      </button>
     </div>
   );
 }

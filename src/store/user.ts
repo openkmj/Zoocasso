@@ -9,11 +9,13 @@ interface UserState extends MemberInRoom {
 const useUserStore = create<UserState>()((set, get) => ({
   id: "",
   name: "anonymous",
+  character: 0,
   isManager: false,
   setUser: (user: MemberInRoom) => {
     set({
       id: user.id,
       name: user.name,
+      character: user.character,
       isManager: !!user.isManager,
     });
   },

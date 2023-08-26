@@ -19,7 +19,7 @@ export type ChatPayload = {
   text: string;
 };
 export type UpdateSettingPayload = {
-  config: RoomConfig;
+  config: GameConfig;
 };
 export type StartPayload = {
   //
@@ -142,7 +142,7 @@ export type StatusUpdatedPayload =
     };
 
 export type SettingUpdatedPayload = {
-  config: RoomConfig;
+  config: GameConfig;
 };
 
 export interface RoomConfig extends GameConfig {
@@ -151,6 +151,7 @@ export interface RoomConfig extends GameConfig {
 }
 
 export interface GameConfig {
+  maxPlayer: number;
   drawTime: number;
   round: number;
   showWordLength: boolean;
@@ -168,6 +169,7 @@ export type AvailableLangugae = "ko" | "en";
 export interface Member {
   id: string;
   name: string;
+  character: number;
 }
 export interface MemberInRoom extends Member {
   isManager: boolean;

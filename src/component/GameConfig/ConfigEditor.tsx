@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
-import Slider from "react-slick";
 import { GameConfig } from "../../class/game";
+import CustomSlider from "../Slider";
 import styles from "./index.module.css";
 
 const MAX_PLAYER_MAP = [4, 5, 6, 7, 8];
@@ -8,11 +8,11 @@ const DRAW_TIME_MAP = [60, 80, 100];
 const ROUND_MAP = [1, 2, 3, 4, 5];
 
 interface GameConfigProps {
-  start?: () => void;
-  onConfigChange?: (config: GameConfig) => void;
+  start: () => void;
+  onConfigChange: (config: GameConfig) => void;
 }
 
-const GameConfig = ({ start, onConfigChange }: GameConfigProps) => {
+const GameConfigEditor = ({ start, onConfigChange }: GameConfigProps) => {
   const [maxPlayer, setMaxPlayer] = useState(6);
   const [drawTime, setDrawTime] = useState(80);
   const [round, setRound] = useState(3);
@@ -22,23 +22,36 @@ const GameConfig = ({ start, onConfigChange }: GameConfigProps) => {
   const handleConfigChange = useCallback(
     (config: GameConfig) => {
       // TODO: apply debounce
-      if (onConfigChange)
-        onConfigChange({
-          drawTime: config.drawTime,
-          round: config.round,
-          showWordLength: config.showWordLength,
-          customWord: config.customWord,
-        });
+      onConfigChange({
+        maxPlayer: config.maxPlayer,
+        drawTime: config.drawTime,
+        round: config.round,
+        showWordLength: config.showWordLength,
+        customWord: config.customWord,
+      });
     },
     [onConfigChange]
   );
 
   useEffect(() => {
-    handleConfigChange({ drawTime, round, showWordLength, customWord });
-  }, [handleConfigChange, drawTime, round, showWordLength, customWord]);
+    handleConfigChange({
+      maxPlayer,
+      drawTime,
+      round,
+      showWordLength,
+      customWord,
+    });
+  }, [
+    handleConfigChange,
+    maxPlayer,
+    drawTime,
+    round,
+    showWordLength,
+    customWord,
+  ]);
 
   const handleStart = () => {
-    if (start) start();
+    start();
   };
   return (
     <div className={styles.setting}>
@@ -46,75 +59,72 @@ const GameConfig = ({ start, onConfigChange }: GameConfigProps) => {
       <div className={styles.configList}>
         <div className={styles.config}>
           <div>max player</div>
-          <Slider
-            className={styles.slick}
-            arrows={false}
+          <CustomSlider
+            type="normal"
             afterChange={(idx) => {
               setMaxPlayer(MAX_PLAYER_MAP[idx]);
             }}
             initialSlide={2}
           >
             {MAX_PLAYER_MAP.map((i) => (
-              <div>{i}</div>
+              <div key={i}>{i}</div>
             ))}
-          </Slider>
+          </CustomSlider>
         </div>
         <div className={styles.config}>
           <div>drawing time</div>
-          <Slider
-            className={styles.slick}
-            arrows={false}
+          <CustomSlider
+            type="normal"
             afterChange={(idx) => {
               setDrawTime(DRAW_TIME_MAP[idx]);
             }}
             initialSlide={1}
           >
             {DRAW_TIME_MAP.map((i) => (
-              <div>{i}</div>
+              <div key={i}>{i}</div>
             ))}
-          </Slider>
+          </CustomSlider>
         </div>
         <div className={styles.config}>
           <div>rounds</div>
-          <Slider
-            className={styles.slick}
-            arrows={false}
+          <CustomSlider
+            type="normal"
             afterChange={(idx) => {
               setRound(ROUND_MAP[idx]);
             }}
             initialSlide={2}
           >
             {ROUND_MAP.map((i) => (
-              <div>{i}</div>
+              <div key={i}>{i}</div>
             ))}
-          </Slider>
+          </CustomSlider>
         </div>
         <div>
-          <Slider className={styles.longSlick} arrows={false}>
+          <CustomSlider
+            type="full"
+            afterChange={(idx) => {
+              setShowWordLength(idx === 0);
+            }}
+          >
             <div>show word length</div>
             <div>hide word length</div>
-          </Slider>
+          </CustomSlider>
         </div>
         <div>
-          <Slider
-            className={styles.longSlick}
-            arrows={false}
-            nextArrow={<div>{">"}</div>}
-            prevArrow={<div>{"<"}</div>}
+          <CustomSlider
+            type="full"
+            afterChange={(idx) => {
+              setCustomWord(idx === 1);
+            }}
           >
             <div>use given words</div>
             <div>use custom words</div>
-          </Slider>
+          </CustomSlider>
         </div>
       </div>
-      {start && (
-        <button onClick={handleStart}>
-          {/* <button onClick={startGame} disabled={memberList.length <= 1}> */}
-          Start Game
-        </button>
-      )}
+      <button onClick={handleStart}>Start Game</button>
     </div>
   );
 };
 
-export default GameConfig;
+export default GameConfigEditor;

@@ -3,5 +3,8 @@
   height: 100vh;
   position: fixed;
   background-color: var(--main-blue);
+  background-image: url("./asset/background-pattern.svg");
+  background-size: 600px 200px;
+  background-repeat: repeat;
   color: var(--white);
 }

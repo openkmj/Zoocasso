@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Slider from "react-slick";
 import styles from "../Lobby.module.css";
 import api from "../api";
 import Logo from "../asset/Logo.png";
 import Capy from "../asset/img/capy.png";
+import Monkey from "../asset/img/monkey.png";
 import { AvailableLangugae } from "../class/game";
 import { RoomPreview } from "../class/room";
+import CustomSlider from "../component/Slider";
 import useModalStore from "../store/modal";
 import useUserStore from "../store/user";
+import { createRandomName } from "../util/random";
 
 export default function LobbyPage({
   setRoom,
@@ -23,33 +25,56 @@ export default function LobbyPage({
   const [language, setLanguage] = useState<AvailableLangugae>(
     roomPreview ? roomPreview.language : "en"
   );
+  const [character, setCharacter] = useState(0);
   const { setUser } = useUserStore();
   const { openModal } = useModalStore();
 
   const onClickJoinPrivate = async () => {
     if (!name || !roomPreview) return;
     const roomId = await api.joinRoom(name, roomPreview.id);
-    setUser({ id: "", name, isManager: false }); // TODO: Set isManager
+    setUser({ id: "", name, character, isManager: false }); // TODO: Set isManager
     setRoom(roomId);
   };
   const onClickJoinPublic = async () => {
-    if (!name) return;
-    const roomId = await api.joinRoom(name);
-    setUser({ id: "", name });
-    setRoom(roomId);
+    alert("currently not available");
+    // if (!name) {
+    //   const _name = createRandomName();
+    //   setName(_name);
+    //   const roomId = await api.joinRoom(_name);
+    //   setUser({ id: "", name: _name, isManager: false });
+    //   setRoom(roomId);
+    // } else {
+    //   const roomId = await api.joinRoom(name);
+    //   setUser({ id: "", name, isManager: false });
+    //   setRoom(roomId);
+    // }
   };
   const onClickCreatePrivate = async () => {
-    if (!name) return;
-    const roomId = await api.createRoom(name, {
-      isPrivate: true,
-      language: language,
-    });
-    setUser({ id: "", name, isManager: true });
-    setRoom(roomId);
+    if (name) {
+      const roomId = await api.createRoom(name, {
+        isPrivate: true,
+        language: language,
+      });
+      setUser({ id: "", name, character, isManager: true });
+      setRoom(roomId);
+    } else {
+      const _name = createRandomName();
+      setName(_name);
+      const roomId = await api.createRoom(_name, {
+        isPrivate: true,
+        language: language,
+      });
+      setUser({ id: "", name: _name, character, isManager: true });
+      setRoom(roomId);
+    }
   };
 
   const openInviteCodeModal = () => {
-    openModal("INVITE_CODE", {});
+    openModal("INVITE_CODE", {
+      callback: (code) => {
+        navigate(`/${code}`);
+      },
+    });
   };
   const handleBackToMain = () => {
     navigate("/");
@@ -76,10 +101,24 @@ export default function LobbyPage({
       <div className={styles.contents}>
         <div className={styles.character}>
           <div className={styles.edit}>
-            <Slider className={styles.slick}>
-              <img src={Capy} alt="capybara" />
-              <img src={Capy} alt="capybara" />
-            </Slider>
+            <CustomSlider
+              type="200"
+              className={styles.slick}
+              afterChange={(idx) => {
+                setCharacter(idx);
+              }}
+            >
+              <img
+                className={styles.characterImage}
+                src={Capy}
+                alt="capybara"
+              />
+              <img
+                className={styles.characterImage}
+                src={Monkey}
+                alt="monkey"
+              />
+            </CustomSlider>
           </div>
         </div>
         <div className={styles.name}>

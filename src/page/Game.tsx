@@ -3,13 +3,18 @@ import styles from "../Game.module.css";
 import {
   C2SEventType,
   ChattingUpdatedPayload,
+  GameConfig,
   GameStatus,
   Member,
   MemberUpdatedPayload,
   S2CEventType,
   StatusUpdatedPayload,
 } from "../class/game";
-import GameConfig from "../component/GameConfig";
+import ClockTimer from "../component/ClockTimer";
+import GameConfigEditor from "../component/GameConfig/ConfigEditor";
+import GameConfigViewer from "../component/GameConfig/ConfigViewer";
+import Icon, { IconType } from "../component/Icon";
+import useTimerCount from "../hook/useTimerCount";
 import useModalStore from "../store/modal";
 import useUserStore from "../store/user";
 import CanvasManager from "../util/CanvasManager";
@@ -27,15 +32,35 @@ export default function GamePage({
   room: string;
   setRoom: (room: string) => void;
 }) {
-  const { id, name, isManager } = useUserStore();
+  const { id, name, character, isManager } = useUserStore();
   const { openModal, closeModal } = useModalStore();
   const [chatInput, setChatInput] = useState("");
-  const [chatList, setChatList] = useState<string[]>([]);
+  const [chatList, setChatList] = useState<
+    {
+      type: "SYS" | "USR";
+      speaker: {
+        id: string;
+        name: string;
+      };
+      text: string;
+    }[]
+  >([]);
   const [memberList, setMemberList] = useState<Member[]>([]);
+  const [currentRound, setCurrentRound] = useState(0);
+  const [gameConfig, setGameConfig] = useState<GameConfig>({
+    maxPlayer: 6,
+    drawTime: 80,
+    round: 3,
+    showWordLength: true,
+    customWord: false,
+  });
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameManagerRef = useRef<GameManager>();
   const canvasManagerRef = useRef<CanvasManager>();
   const [isOnGame, setIsOnGame] = useState(false);
+  const [drawTimeCount, startDrawTimeCount] = useTimerCount();
+  const chatListRef = useRef<HTMLDivElement>(null);
+
   const leaveRoom = () => {
     // TODO: leave room
     setRoom("");
@@ -48,7 +73,7 @@ export default function GamePage({
       type: C2SEventType.CHAT,
       payload: {
         type: "USR",
-        member: { id, name },
+        member: { id, name, character },
         text: chatInput.trim(),
       },
     });
@@ -65,15 +90,34 @@ export default function GamePage({
       payload: {},
     });
   };
+  const share = () => {
+    navigator.clipboard.writeText(location.href).then(() => {
+      alert("클립보드에 복사되었습니다.");
+    });
+  };
 
-  const startGame = () => {
+  const updateSetting = useCallback(
+    (config: GameConfig) => {
+      if (!gameManagerRef.current) return;
+      gameManagerRef.current.emitEvent({
+        roomId: room,
+        type: C2SEventType.UPDATE_SETTING,
+        payload: {
+          config: config,
+        },
+      });
+    },
+    [room]
+  );
+
+  const startGame = useCallback(() => {
     if (!gameManagerRef.current) return;
     gameManagerRef.current.emitEvent({
       roomId: room,
       type: C2SEventType.START,
       payload: {},
     });
-  };
+  }, [room]);
 
   const handleCanvasUpdated = useCallback(
     (b: ArrayBuffer) => {
@@ -114,18 +158,24 @@ export default function GamePage({
     if (gameManagerRef.current) return;
 
     // init game manager
-    gameManagerRef.current = new GameManager(room, { id, name, isManager });
+    gameManagerRef.current = new GameManager(room, {
+      id,
+      name,
+      character,
+      isManager,
+    });
     gameManagerRef.current.connect();
     gameManagerRef.current.addEventListener(
       S2CEventType.CHATTING_UPDATED,
       (p: ChattingUpdatedPayload) => {
-        if (p.type === "SYS") {
-          // get system message
-          setChatList((i) => i.concat(p.text));
-        } else {
-          // get user message
-          setChatList((i) => i.concat(`${p.member.name}: ${p.text}`));
-        }
+        setChatList((i) =>
+          i.concat({
+            type: p.type,
+            speaker:
+              p.type === "SYS" ? { id: "SYS", name: "System" } : p.member,
+            text: p.text,
+          })
+        );
       }
     );
     gameManagerRef.current.addEventListener(
@@ -144,12 +194,9 @@ export default function GamePage({
           case GameStatus.DRAWING: {
             closeModal("SELECT_WORD");
             closeModal("WAIT_WORD");
-            if (p.word) {
-              console.log(p.word);
-              setChatList((i) => i.concat(`${p.word}를 선택하셨습니다.`));
-            } else {
-              setChatList((i) => i.concat("단어 고르기 끝"));
-            }
+            startDrawTimeCount(80, () => {
+              console.log("time's up");
+            });
             return;
           }
           case GameStatus.SELECTING_WORD: {
@@ -230,29 +277,73 @@ export default function GamePage({
         canvasManagerRef.current?.syncCanvas(p.data);
       }
     );
-  }, [room, id, name, isManager, openModal, closeModal]);
+    gameManagerRef.current.addEventListener(
+      S2CEventType.SETTING_UPDATED,
+      (p) => {
+        setGameConfig(p.config);
+      }
+    );
+  }, [room, id, name, isManager, openModal, closeModal, startDrawTimeCount]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      chatListRef.current?.scrollBy({
+        top: 99999,
+        behavior: "smooth",
+      });
+    }, 100);
+  }, [chatList]);
+
   return (
     <div className={styles.game}>
       <div className={styles.header}>
         <div className={styles.left}>
-          <span>round(1/3)</span>
-          <span>80</span>
+          <ClockTimer count={drawTimeCount} />
+          <span>
+            ({currentRound}/{gameConfig.round})
+          </span>
         </div>
         <div className={styles.center}>?</div>
-        <div className={styles.right}>menu</div>
+        <div className={styles.right}>
+          <div className={styles.skipButton}>
+            <Icon type={IconType.SKIP} width={20} height={20} color="white" />
+          </div>
+          <div className={styles.shareButton}>
+            <Icon type={IconType.SHARE} width={20} height={20} color="white" />
+          </div>
+        </div>
       </div>
       <div className={styles.mainView}>
         <div className={styles.canvasWrapper}>
           <canvas ref={canvasRef}></canvas>
           {!isOnGame && (
-            <GameConfig start={isManager ? startGame : undefined} />
+            <>
+              {isManager ? (
+                <GameConfigEditor
+                  start={startGame}
+                  onConfigChange={updateSetting}
+                />
+              ) : (
+                <GameConfigViewer config={gameConfig} />
+              )}
+            </>
           )}
         </div>
       </div>
-      <div className={styles.chatList}>
+      <div className={styles.chatList} ref={chatListRef}>
         {chatList.map((i, idx) => (
-          <div className="item" key={idx}>
-            {i}
+          <div
+            className={
+              i.type === "SYS"
+                ? `${styles.chatItem} ${styles.system}`
+                : id === i.speaker.id
+                ? `${styles.chatItem} ${styles.mine}`
+                : styles.chatItem
+            }
+            key={idx}
+          >
+            <div className={styles.speaker}>{i.speaker.name}</div>
+            <div className={styles.text}>{i.text}</div>
           </div>
         ))}
       </div>
@@ -270,7 +361,9 @@ export default function GamePage({
             }
           }}
         />
-        <button onClick={sendChat}>{"=>"}</button>
+        <button onClick={sendChat}>
+          <Icon type={IconType.SEND} width={19} height={24} color="white" />
+        </button>
       </div>
     </div>
   );

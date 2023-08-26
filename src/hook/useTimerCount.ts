@@ -33,7 +33,10 @@ const useTimerCount = () => {
     };
   }, []);
 
-  return [timerCount, startTimer];
+  return [timerCount, startTimer] as [
+    number,
+    (initialTimerCount: number, onTimerEnd: () => void) => void
+  ];
 };
 
 export default useTimerCount;

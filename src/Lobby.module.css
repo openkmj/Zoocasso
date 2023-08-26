@@ -4,7 +4,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px 0;
+  padding: 25px 0 0;
 }
 .logo {
   width: 300px;
@@ -33,7 +33,7 @@
 .slick {
   width: 200px;
 }
-.character .edit img {
+.character .edit .characterImage {
   width: 200px;
   height: 200px;
 }

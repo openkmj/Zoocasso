@@ -1,0 +1,22 @@
+.slick {
+  width: 100px;
+  text-align: center;
+}
+.longSlick {
+  width: 300px;
+  text-align: center;
+}
+.slick200 {
+  width: 200px;
+  text-align: center;
+}
+:global .slick-prev::before,
+:global .slick-next::before {
+  opacity: 0;
+  display: none;
+}
+:global .slick-arrow {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}

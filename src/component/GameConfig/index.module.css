@@ -5,12 +5,13 @@
   bottom: 0;
   right: 0;
   z-index: 1;
-  color: var(--black);
+  color: var(--white);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 20px;
+  background-color: rgba(0, 0, 0, 0.6);
 }
 .configList {
   display: flex;
@@ -22,12 +23,4 @@
   justify-content: space-between;
 }
 .configLabel {
-}
-.slick {
-  width: 100px;
-  text-align: center;
-}
-.longSlick {
-  width: 300px;
-  text-align: center;
 }
