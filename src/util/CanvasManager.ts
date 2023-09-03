@@ -8,6 +8,7 @@ export default class CanvasManager {
   private canvas: HTMLCanvasElement;
   private ctx: any;
   private handleCanvasUpdated: (data: ArrayBuffer) => void;
+  private isDrawing = false;
   constructor(
     canvas: HTMLCanvasElement,
     handleCanvasUpdated: (data: ArrayBuffer) => void
@@ -17,56 +18,104 @@ export default class CanvasManager {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
     console.log(this.ctx);
-    this.canvas.onmousemove = (e: MouseEvent) => {
-      this.draw(e, 10);
-    };
+
+    canvas.addEventListener("touchstart", (e) => {
+      this.startDrawing(e);
+    });
+    canvas.addEventListener("touchend", () => {
+      this.endDrawing();
+    });
+    canvas.addEventListener("touchmove", (e) => {
+      this.draw(e);
+    });
+    canvas.addEventListener("mousedown", (e) => {
+      this.startDrawing(e);
+    });
+    canvas.addEventListener("mouseup", () => {
+      this.endDrawing();
+    });
+    canvas.addEventListener("mousemove", (e) => {
+      this.draw(e);
+    });
+    // this.canvas.onmousemove = (e: MouseEvent) => {
+    //   this.draw(e, 10);
+    // };
 
     this.handleCanvasUpdated = handleCanvasUpdated;
   }
-  private draw(e: MouseEvent, color: number) {
-    if (color < 0 || color > 15) return;
-    if (e.buttons !== 1) return;
-    // const ctx = this.canvas.getContext("2d");
-    if (!this.ctx) return;
-    this.ctx.imageSmoothingEnabled = false;
-    const rect = this.canvas.getBoundingClientRect();
-
-    const x = Math.floor((e.offsetX * WIDTH) / rect.width);
-    const y = Math.floor((e.offsetY * HEIGHT) / rect.height);
-
-    const img = new Uint8Array(this.bitMap);
-    const dataView = new DataView(img.buffer);
-
-    const dataIndex = (y * 128 + x) / 2;
-
-    if (x % 2 === 0) {
-      dataView.setUint8(
-        dataIndex,
-        ((color << 4) | 0b00001111) &
-          (dataView.getUint8(dataIndex) | 0b11110000)
-      );
-    } else {
-      dataView.setUint8(
-        dataIndex,
-        (dataView.getUint8(dataIndex) | 0b00001111) & (color | 0b11110000)
-      );
-    }
-
-    this.syncCanvas(img.buffer);
-
-    if (timer) return;
-    timer = setTimeout(() => {
-      timer = null;
-      this.handleCanvasUpdated(this.bitMap);
-      // gameManagerRef.current.emitEvent({
-      //   roomId: room,
-      //   type: C2SEventType.DRAW,
-      //   payload: {
-      //     data: b,
-      //   },
-      // });
-    }, 1000);
+  private startDrawing(e: MouseEvent | TouchEvent) {
+    this.isDrawing = true;
+    this.draw(e);
   }
+  private endDrawing() {
+    this.isDrawing = false;
+  }
+  private draw(e: MouseEvent | TouchEvent) {
+    if (!this.isDrawing) return;
+    let evt;
+    if (e instanceof TouchEvent) {
+      evt = e.touches[0];
+    } else {
+      evt = e;
+    }
+    const pixelSize = 1;
+    const rect = this.canvas.getBoundingClientRect();
+    const x = Math.floor(((evt.clientX - rect.x) * WIDTH) / rect.width);
+    const y = Math.floor(((evt.clientY - rect.y) * WIDTH) / rect.height);
+
+    console.log(x, y);
+    this.ctx.fillStyle = "#333333";
+    this.ctx.fillRect(
+      Math.floor(x / pixelSize) * pixelSize,
+      Math.floor(y / pixelSize) * pixelSize,
+      pixelSize,
+      pixelSize
+    );
+  }
+  // private draw(e: MouseEvent, color: number) {
+  //   if (color < 0 || color > 15) return;
+  //   if (e.buttons !== 1) return;
+  //   // const ctx = this.canvas.getContext("2d");
+  //   if (!this.ctx) return;
+  //   this.ctx.imageSmoothingEnabled = false;
+  //   const rect = this.canvas.getBoundingClientRect();
+
+  //   const x = Math.floor((e.offsetX * WIDTH) / rect.width);
+  //   const y = Math.floor((e.offsetY * HEIGHT) / rect.height);
+
+  //   const img = new Uint8Array(this.bitMap);
+  //   const dataView = new DataView(img.buffer);
+
+  //   const dataIndex = (y * 128 + x) / 2;
+
+  //   if (x % 2 === 0) {
+  //     dataView.setUint8(
+  //       dataIndex,
+  //       ((color << 4) | 0b00001111) &
+  //         (dataView.getUint8(dataIndex) | 0b11110000)
+  //     );
+  //   } else {
+  //     dataView.setUint8(
+  //       dataIndex,
+  //       (dataView.getUint8(dataIndex) | 0b00001111) & (color | 0b11110000)
+  //     );
+  //   }
+
+  //   this.syncCanvas(img.buffer);
+
+  //   if (timer) return;
+  //   timer = setTimeout(() => {
+  //     timer = null;
+  //     this.handleCanvasUpdated(this.bitMap);
+  //     // gameManagerRef.current.emitEvent({
+  //     //   roomId: room,
+  //     //   type: C2SEventType.DRAW,
+  //     //   payload: {
+  //     //     data: b,
+  //     //   },
+  //     // });
+  //   }, 1000);
+  // }
 
   clear() {
     this.bitMap = new ArrayBuffer((WIDTH * HEIGHT) / 2);
