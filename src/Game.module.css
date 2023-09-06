@@ -39,6 +39,7 @@
   background-color: var(--white);
   width: 100vw;
   image-rendering: pixelated;
+  user-select: none;
 }
 @media (min-width: 500px) {
   .canvasWrapper canvas {
