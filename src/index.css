@@ -29,6 +29,7 @@ body {
   --chatting-bg: #293c80;
   --sub-yellow: #fbb03b;
   --system-green: #5aff6b;
+  overscroll-behavior: none;
 }
 button {
   padding: 10px;
